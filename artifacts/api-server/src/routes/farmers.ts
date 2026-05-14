@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { type Collection } from "mongodb";
 import { getDb } from "../lib/mongo";
+import { uploadToCloudinary } from "../lib/cloudinary";
+import { logger } from "../lib/logger";
 
 const router = Router();
 
@@ -278,16 +280,37 @@ router.post("/farmers/:farmerId/documents", async (req, res, next) => {
     const now = new Date().toISOString();
 
     for (const d of docs.filter(
-      (d: { docType?: string; cloudinaryUrl?: string; mimeType?: string }) =>
-        typeof d.docType === "string"
-    )) {
+      (d: { docType?: string }) => typeof d.docType === "string"
+    ) as Array<{ docType: string; base64?: string; mimeType?: string; cloudinaryUrl?: string }>) {
+      const mimeType = d.mimeType || "application/octet-stream";
+
+      // Upload base64 payload to Cloudinary if no cloudinaryUrl already provided
+      let cloudinaryUrl: string | undefined = d.cloudinaryUrl;
+      if (!cloudinaryUrl && d.base64 && d.base64.length > 0) {
+        try {
+          const buf = Buffer.from(d.base64, "base64");
+          const sanitizedMobile = mobile.replace(/\D/g, "");
+          const result = await uploadToCloudinary(
+            buf,
+            mimeType,
+            `farmers/${sanitizedMobile}`,
+            `${d.docType}_${Date.now()}`,
+          );
+          cloudinaryUrl = result.url;
+          logger.info({ docType: d.docType, farmerId }, "Document uploaded to Cloudinary via admin");
+        } catch (err) {
+          logger.error({ err, docType: d.docType }, "Cloudinary upload failed in documents route");
+        }
+      }
+
       const docObj: Record<string, unknown> = {
         docType: d.docType,
-        mimeType: d.mimeType || "application/octet-stream",
+        mimeType,
         mobile,
         uploadedAt: now,
-        ...(d.cloudinaryUrl ? { cloudinaryUrl: d.cloudinaryUrl } : {}),
+        ...(cloudinaryUrl ? { cloudinaryUrl } : {}),
       };
+
       const updateResult = await farmersCol.updateOne(
         { farmerId, "documents.docType": d.docType },
         { $set: { "documents.$": docObj } }

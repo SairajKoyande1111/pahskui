@@ -129,7 +129,7 @@ function ProfileSection({
   docImages,
 }: {
   farmer: FarmerRecord;
-  docImages: Record<string, { base64: string; mimeType: string }>;
+  docImages: Record<string, string>;
 }) {
   const docStates = useMemo(() => {
     const states = Object.fromEntries(
@@ -241,9 +241,7 @@ function ProfileSection({
           customPhoto={null}
           onCustomPhotoChange={() => {}}
           hideFooter={true}
-          extraDocImages={Object.fromEntries(
-            Object.entries(docImages).map(([k, v]) => [k, `data:${v.mimeType};base64,${v.base64}`])
-          )}
+          extraDocImages={docImages}
         />
       )}
     </div>
@@ -291,7 +289,7 @@ function fmtDate(s: string | undefined) {
 export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: FarmerRecord; onNavigate?: (section: string) => void }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [activeNav, setActiveNav] = useState("sec-profile");
-  const [docImages, setDocImages] = useState<Record<string, { base64: string; mimeType: string }>>({});
+  const [docImages, setDocImages] = useState<Record<string, string>>({});
   const [docsLoading, setDocsLoading] = useState(false);
   const initials = farmer.name.trim().split(" ").map(w => w[0]).slice(0, 2).join("").toUpperCase();
 
@@ -314,9 +312,15 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
     setDocsLoading(true);
     fetch(`/api/farmers/${farmer.farmerId}/documents`)
       .then(r => r.ok ? r.json() : Promise.reject())
-      .then((data: { documents: { docType: string; base64: string; mimeType: string }[] }) => {
-        const map: Record<string, { base64: string; mimeType: string }> = {};
-        for (const d of data.documents ?? []) map[d.docType] = { base64: d.base64, mimeType: d.mimeType };
+      .then((data: { documents: { docType: string; cloudinaryUrl?: string; base64?: string; mimeType: string }[] }) => {
+        const map: Record<string, string> = {};
+        for (const d of data.documents ?? []) {
+          if (d.cloudinaryUrl) {
+            map[d.docType] = d.cloudinaryUrl;
+          } else if (d.base64) {
+            map[d.docType] = `data:${d.mimeType};base64,${d.base64}`;
+          }
+        }
         setDocImages(map);
       })
       .catch(() => {})
@@ -445,7 +449,7 @@ export default function VerifiedFarmerCard({ farmer, onNavigate }: { farmer: Far
                     </div>
                     <div className="p-3 flex justify-center">
                       <img
-                        src={`data:${img.mimeType};base64,${img.base64}`}
+                        src={img}
                         alt={DOC_LABEL[docType] ?? docType}
                         className="max-h-64 object-contain rounded-lg border border-slate-100 w-full"
                       />

@@ -58,7 +58,7 @@ export function DocContentView({
   state: ExtractionState;
   docId: DocTypeId;
   lang: LangCode;
-  rawDocImage?: { base64: string; mimeType: string } | null;
+  rawDocImage?: string | null;
 }) {
   const [showRawText, setShowRawText] = useState(false);
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
@@ -69,9 +69,7 @@ export function DocContentView({
   const hasTextBlocks = state.textBlocks && state.textBlocks.length > 0;
   const hasMeaningfulContent = hasFields || hasTables || hasRawTables;
 
-  const docImageSrc = rawDocImage
-    ? `data:${rawDocImage.mimeType};base64,${rawDocImage.base64}`
-    : state.rawFileDataUrl ?? null;
+  const docImageSrc = rawDocImage ?? state.rawFileDataUrl ?? null;
 
   return (
     <div className="space-y-4">
@@ -282,7 +280,7 @@ export default function FarmerReviewModal({
   const [customPhoto, setCustomPhoto]  = useState<string | null>(null);
   const [saving, setSaving]            = useState<string | null>(null);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
-  const [docImages, setDocImages]      = useState<Record<string, { base64: string; mimeType: string }>>({});
+  const [docImages, setDocImages]      = useState<Record<string, string>>({});
   const [airavataAnim, setAiravataAnim] = useState<object | null>(null);
   const [resolvedIssueIds, setResolvedIssueIds] = useState<Set<string>>(new Set());
 
@@ -294,9 +292,15 @@ export default function FarmerReviewModal({
     if (!farmer.farmerId) return;
     fetch(`/api/farmers/${farmer.farmerId}/documents`)
       .then(r => r.ok ? r.json() : Promise.reject())
-      .then((data: { documents: { docType: string; base64: string; mimeType: string }[] }) => {
-        const map: Record<string, { base64: string; mimeType: string }> = {};
-        for (const d of data.documents ?? []) map[d.docType] = { base64: d.base64, mimeType: d.mimeType };
+      .then((data: { documents: { docType: string; cloudinaryUrl?: string; base64?: string; mimeType: string }[] }) => {
+        const map: Record<string, string> = {};
+        for (const d of data.documents ?? []) {
+          if (d.cloudinaryUrl) {
+            map[d.docType] = d.cloudinaryUrl;
+          } else if (d.base64) {
+            map[d.docType] = `data:${d.mimeType};base64,${d.base64}`;
+          }
+        }
         setDocImages(map);
       })
       .catch(() => {});
@@ -515,9 +519,7 @@ export default function FarmerReviewModal({
                 customPhoto={customPhoto}
                 onCustomPhotoChange={setCustomPhoto}
                 hideFooter={true}
-                extraDocImages={Object.fromEntries(
-                  Object.entries(docImages).map(([k, v]) => [k, `data:${v.mimeType};base64,${v.base64}`])
-                )}
+                extraDocImages={docImages}
               />
             </div>
 
