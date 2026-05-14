@@ -121,16 +121,14 @@ export default function LoginPage() {
             ))}
           </datalist>
 
-          {/* TOP: Krushi logo — 180px fixed, isolated stacking context, crop top 45% of 2000px square */}
-          <div style={{ height: 180, minHeight: 180, flexShrink: 0, overflow: "hidden", isolation: "isolate" }}>
+          {/* TOP: Krushi logo — full logo visible, no cropping */}
+          <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", paddingTop: 8, paddingBottom: 0 }}>
             <img
               src="/logo-krushi-suvidha-new.png"
               alt="Krushi Suvidha"
               style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                objectPosition: "center 12%",
+                width: "88%",
+                height: "auto",
                 display: "block",
                 mixBlendMode: "multiply",
               }}
