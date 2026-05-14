@@ -51,7 +51,7 @@ export default function AIAssistant({ open, onClose }: { open: boolean; onClose:
       <div className="flex items-center justify-between px-4 py-3 border-b border-border" style={{ backgroundColor: "#0D2B1E" }}>
         <div className="flex items-center gap-2">
           <MessageSquare className="h-5 w-5 text-secondary" />
-          <span className="font-heading text-sm text-secondary">AgriAdmin AI Assistant</span>
+          <span className="font-heading text-sm text-secondary">Krushi Suvidha AI Assistant</span>
         </div>
         <button onClick={onClose} className="text-secondary/70 hover:text-secondary"><X className="h-4 w-4" /></button>
       </div>
