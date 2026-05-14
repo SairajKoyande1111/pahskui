@@ -6,7 +6,7 @@ export type UserRole = "admin" | "district_officer" | "taluka_officer" | "viewer
 export const SECTIONS = [
   "dashboard", "newregistration", "farmers", "verifiedfarmers",
   "applications", "allschemes", "allinsurance", "allsubsidies", "subsidies", "insurance", "grievances",
-  "notifications", "reports", "settings", "farmerapp", "usermanagement",
+  "notifications", "reports", "digitalforms", "settings", "farmerapp", "usermanagement",
 ] as const;
 export type SectionKey = typeof SECTIONS[number];
 
@@ -24,6 +24,7 @@ export const SECTION_LABELS: Record<SectionKey, string> = {
   grievances:       "Grievance Management",
   notifications:    "Notification Management",
   reports:          "Reports & Analytics",
+  digitalforms:     "Digital Forms",
   settings:         "Settings & Workflow",
   farmerapp:        "Farmer App Preview",
   usermanagement:   "User Management",

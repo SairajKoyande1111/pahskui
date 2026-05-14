@@ -3,7 +3,7 @@ import {
   BarChart3, Users, ClipboardList, IndianRupee, Shield, Megaphone,
   TrendingUp, Settings, ChevronLeft, ChevronRight,
   UserPlus, UserCheck, UsersRound, BookOpen, ShieldCheck, Coins,
-  FolderOpen, Database as DatabaseIcon, BellRing, LogOut,
+  FolderOpen, Database as DatabaseIcon, BellRing, LogOut, FileText,
 } from "lucide-react";
 import { useLang } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -53,6 +53,7 @@ const NAV_ENTRIES: NavEntry[] = [
   { key: "grievances",     labelKey: "nav_grievances",     icon: Megaphone },
   { key: "notifications",  labelKey: "nav_notifications",  icon: BellRing },
   { key: "reports",        labelKey: "nav_reports",        icon: TrendingUp },
+  { key: "digitalforms",   labelKey: "nav_digitalforms",   icon: FileText },
   { key: "settings",   labelKey: "nav_settings",   icon: Settings },
 ];
 

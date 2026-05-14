@@ -16,6 +16,7 @@ import UserManagement from "@/components/modules/UserManagement";
 import AllSchemes from "@/components/modules/AllSchemes";
 import AllInsuranceSubsidies from "@/components/modules/AllInsuranceSubsidies";
 import NotificationManagement from "@/components/modules/NotificationManagement";
+import DigitalForms from "@/components/modules/DigitalForms";
 import AIAssistant from "@/components/AIAssistant";
 import { useLang } from "@/contexts/LanguageContext";
 import { useAuth, type SectionKey } from "@/contexts/AuthContext";
@@ -36,6 +37,7 @@ const pageTitleKeys: Record<string, string> = {
   grievances:       "page_grievances",
   notifications:    "Notification Management",
   reports:          "page_reports",
+  digitalforms:     "Digital Forms",
   settings:         "page_settings",
   farmerapp:        "page_farmerapp",
   usermanagement:   "User Management",
@@ -106,6 +108,7 @@ export default function Index() {
     if (active === "insurance")       return <InsuranceClaims/>;
     if (active === "grievances")      return <GrievanceManagement/>;
     if (active === "notifications")   return <NotificationManagement onNavigate={navigate}/>;
+    if (active === "digitalforms")    return <DigitalForms/>;
     if (active === "reports")         return <ReportsAnalytics/>;
     if (active === "settings")        return <SettingsWorkflow/>;
     if (active === "farmerapp")       return <FarmerAppPreview/>;
@@ -121,7 +124,7 @@ export default function Index() {
         <Header onAIOpen={() => setAiOpen(true)} onNavigate={navigate}/>
 
         <main className="p-6">
-          {active !== "newregistration" && active !== "farmers" && active !== "verifiedfarmers" && <h1 className="font-heading text-2xl mb-6">{pageTitle}</h1>}
+          {active !== "newregistration" && active !== "farmers" && active !== "verifiedfarmers" && active !== "digitalforms" && <h1 className="font-heading text-2xl mb-6">{pageTitle}</h1>}
           {renderContent()}
         </main>
       </div>

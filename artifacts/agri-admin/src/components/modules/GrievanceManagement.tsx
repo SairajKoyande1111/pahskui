@@ -9,20 +9,23 @@ const STATUSES = ["Open", "In Progress", "Resolved", "Escalated", "Closed", "Rej
 const PRIORITIES = ["High", "Medium", "Low"] as const;
 
 function PriorityBadge({ p }: { p: string }) {
-  const cls = p === "High" ? "bg-destructive/10 text-destructive" : p === "Medium" ? "bg-warning/20 text-warning" : "bg-success/10 text-success";
+  const style =
+    p === "High"   ? { background: "#FEE2E2", color: "#DC2626" } :
+    p === "Medium" ? { background: "#FEF3C7", color: "#D97706" } :
+                     { background: "#D1FAE5", color: "#059669" };
   const icon = p === "High" ? "🔴" : p === "Medium" ? "🟡" : "🟢";
-  return <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cls}`}>{icon} {p}</span>;
+  return <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold" style={style}>{icon} {p}</span>;
 }
 
 function StatusBadge({ s }: { s: string }) {
-  const cls =
-    s === "Resolved" ? "bg-success/10 text-success" :
-    s === "In Progress" ? "bg-info/10 text-info" :
-    s === "Escalated" ? "bg-destructive/10 text-destructive" :
-    s === "Rejected" ? "bg-destructive/20 text-destructive" :
-    s === "Closed" ? "bg-muted text-muted-foreground" :
-    "bg-warning/20 text-warning";
-  return <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cls}`}>{s}</span>;
+  const style =
+    s === "Resolved"    ? { background: "#D1FAE5", color: "#065F46" } :
+    s === "In Progress" ? { background: "#DBEAFE", color: "#1D4ED8" } :
+    s === "Escalated"   ? { background: "#FEE2E2", color: "#DC2626" } :
+    s === "Rejected"    ? { background: "#FCE7F3", color: "#9D174D" } :
+    s === "Closed"      ? { background: "#F1F5F9", color: "#475569" } :
+                          { background: "#FEF3C7", color: "#92400E" };
+  return <span className="text-xs px-2.5 py-0.5 rounded-full font-semibold" style={style}>{s}</span>;
 }
 
 function fmt(iso: string) {
@@ -503,58 +506,85 @@ export default function GrievanceManagement() {
     );
   }
 
+  const KPI_META = [
+    { label: "Total",       icon: "📋", filter: "",            color: "#1B4332" },
+    { label: "Open",        icon: "🟡", filter: "Open",        color: "#92400E" },
+    { label: "In Progress", icon: "🔄", filter: "In Progress", color: "#1D4ED8" },
+    { label: "Resolved",    icon: "✅", filter: "Resolved",    color: "#065F46" },
+    { label: "Escalated",   icon: "⬆️",  filter: "Escalated",  color: "#DC2626" },
+    { label: "Avg Days",    icon: "⏱️",  filter: "",            color: "#7C3AED" },
+  ];
+
   return (
-    <div className="space-y-6 animate-fade-in">
+    <div className="space-y-5 animate-fade-in">
       {toast && <div className="fixed top-4 right-4 z-50 bg-primary text-primary-foreground px-4 py-3 rounded-lg shadow-lg text-sm">{toast}</div>}
 
-      {/* KPIs */}
+      {/* KPI Stat Cards — clickable to filter */}
       <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
-        {kpis.map(k => (
-          <div key={k.label} className="bg-card border border-border rounded-lg p-3 text-center card-hover">
-            <div className="text-xl font-heading">{loading ? "…" : k.value}</div>
-            <div className="text-xs text-muted-foreground">{k.label}</div>
-          </div>
-        ))}
+        {kpis.map((k, i) => {
+          const meta = KPI_META[i];
+          const isActive = meta.filter !== "" && statusFilter === meta.filter;
+          return (
+            <button
+              key={k.label}
+              onClick={() => { if (meta.filter) { setStatusFilter(s => s === meta.filter ? "" : meta.filter); setPage(0); } }}
+              className={`bg-card border rounded-xl p-4 text-center transition-all ${meta.filter ? "hover:shadow-md cursor-pointer" : "cursor-default"} ${isActive ? "ring-2 shadow-md" : "border-border"}`}
+              style={isActive ? { borderColor: meta.color, ringColor: meta.color } : {}}
+            >
+              <div className="text-xl mb-1">{meta.icon}</div>
+              <div className="font-bold text-gray-800" style={{ fontFamily: "Poppins, sans-serif", fontSize: "1.35rem", lineHeight: 1, color: loading ? "#9CA3AF" : meta.color }}>
+                {loading ? "…" : k.value}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1 font-medium">{k.label}</div>
+            </button>
+          );
+        })}
       </div>
 
       {/* AI Classifier + File button */}
       <div className="flex items-start gap-4">
-        <div className="bg-agri-light border border-border rounded-lg p-5 flex-1">
-          <h3 className="font-heading text-lg mb-3">🤖 AI Grievance Classifier</h3>
+        <div className="border border-border rounded-xl p-5 flex-1" style={{ background: "#F0FDF4" }}>
+          <h3 className="font-heading text-base mb-3" style={{ color: "#1B4332" }}>🤖 Category Filter</h3>
           <div className="flex flex-wrap gap-2">
-            {CATEGORIES.map(c => (
-              <button key={c}
-                onClick={() => { setStatusFilter(""); setSearchQ(c === "Other" ? "" : c); setPage(0); }}
-                className="text-xs px-3 py-1.5 rounded-full bg-card border border-border font-medium hover:bg-muted transition-colors">
-                {c} ({catCounts[c] ?? 0})
-              </button>
-            ))}
+            {CATEGORIES.map(c => {
+              const isActive = searchQ === c;
+              return (
+                <button key={c}
+                  onClick={() => { setStatusFilter(""); setSearchQ(isActive ? "" : (c === "Other" ? "" : c)); setPage(0); }}
+                  className={`text-xs px-3 py-1.5 rounded-full border font-semibold transition-colors ${isActive ? "text-white border-transparent" : "bg-white border-border hover:bg-gray-50"}`}
+                  style={isActive ? { background: "#14532D" } : {}}>
+                  {c} <span className="opacity-60">({catCounts[c] ?? 0})</span>
+                </button>
+              );
+            })}
           </div>
         </div>
         <div className="flex flex-col gap-2">
           <button onClick={() => setView("new")}
-            className="flex items-center gap-1.5 text-sm px-4 py-2 bg-secondary text-secondary-foreground rounded-lg hover:opacity-90 whitespace-nowrap">
+            className="flex items-center gap-1.5 text-sm px-4 py-2.5 text-white rounded-full font-semibold hover:opacity-90 whitespace-nowrap shadow-sm"
+            style={{ background: "#14532D" }}>
             <Plus className="h-4 w-4" /> File Grievance
           </button>
           <button onClick={refresh}
-            className="flex items-center gap-1.5 text-sm px-4 py-2 bg-muted text-muted-foreground rounded-lg hover:bg-muted/80 whitespace-nowrap">
+            className="flex items-center gap-1.5 text-sm px-4 py-2.5 bg-muted text-muted-foreground rounded-full hover:bg-muted/80 whitespace-nowrap font-medium">
             <RefreshCw className="h-4 w-4" /> Refresh
           </button>
         </div>
       </div>
 
-      {/* Search + Filter */}
+      {/* Search + Status Filter */}
       <div className="flex flex-wrap gap-3 items-center">
-        <div className="flex-1 min-w-48 relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="flex-1 min-w-52 relative">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input value={searchQ} onChange={e => { setSearchQ(e.target.value); setPage(0); }}
-            className="w-full pl-9 pr-3 py-2 text-sm border border-border rounded-lg bg-background"
-            placeholder="Search by farmer name, GR ID, category…" />
+            className="w-full pl-11 pr-4 py-2.5 text-sm border border-border rounded-full bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+            placeholder="Search farmer, GR ID, category, subject…" />
         </div>
         <div className="flex flex-wrap gap-2">
           {(["", "Open", "In Progress", "Resolved", "Escalated", "Rejected"] as const).map(s => (
             <button key={s} onClick={() => { setStatusFilter(s); setPage(0); }}
-              className={`text-xs px-3 py-1.5 rounded-full border transition-colors ${statusFilter === s ? "bg-primary text-primary-foreground border-primary" : "bg-card border-border hover:bg-muted"}`}>
+              className={`text-xs px-4 py-2 rounded-full border font-semibold transition-colors ${statusFilter === s ? "text-white border-transparent shadow-sm" : "bg-white border-border hover:bg-gray-50"}`}
+              style={statusFilter === s ? { background: "#14532D" } : {}}>
               {s || "All"}
             </button>
           ))}
@@ -563,66 +593,70 @@ export default function GrievanceManagement() {
 
       {/* Table */}
       {error ? (
-        <div className="bg-card border border-destructive/30 rounded-lg p-8 text-center">
+        <div className="bg-card border border-destructive/30 rounded-xl p-8 text-center">
           <p className="text-destructive text-sm mb-3">{error}</p>
-          <button onClick={refresh} className="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-lg">Retry</button>
+          <button onClick={refresh} className="text-sm px-4 py-2 bg-primary text-primary-foreground rounded-full">Retry</button>
         </div>
       ) : loading ? (
         <div className="space-y-3">
-          {[1, 2, 3, 4].map(i => <div key={i} className="h-12 bg-muted/40 rounded-lg animate-pulse" />)}
+          {[1, 2, 3, 4].map(i => <div key={i} className="h-14 bg-muted/40 rounded-xl animate-pulse" />)}
         </div>
       ) : filtered.length === 0 ? (
-        <div className="bg-card border border-border rounded-lg p-12 text-center">
+        <div className="bg-card border border-border rounded-xl p-12 text-center">
           <p className="text-4xl mb-3">📭</p>
           <p className="text-muted-foreground text-sm">No grievances found{statusFilter ? ` with status "${statusFilter}"` : ""}.</p>
           {grievances.length > 0 && <button onClick={() => { setStatusFilter(""); setSearchQ(""); }} className="mt-3 text-sm text-primary underline">Clear filters</button>}
         </div>
       ) : (
-        <div className="bg-card border border-border rounded-lg overflow-hidden">
+        <div className="bg-card border border-border rounded-xl overflow-hidden shadow-sm">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-muted/50 text-left text-muted-foreground">
-                  <th className="px-4 py-3 font-medium">GR ID</th>
-                  <th className="px-4 py-3 font-medium">Farmer</th>
-                  <th className="px-4 py-3 font-medium">Category</th>
-                  <th className="px-4 py-3 font-medium">Subject</th>
-                  <th className="px-4 py-3 font-medium">Filed</th>
-                  <th className="px-4 py-3 font-medium">Priority</th>
-                  <th className="px-4 py-3 font-medium">Assigned</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium">Action</th>
+                <tr className="text-left text-white text-xs" style={{ background: "#1B4332" }}>
+                  <th className="px-4 py-3 font-semibold tracking-wide">GR ID</th>
+                  <th className="px-4 py-3 font-semibold tracking-wide">Farmer</th>
+                  <th className="px-4 py-3 font-semibold tracking-wide">Category</th>
+                  <th className="px-4 py-3 font-semibold tracking-wide">Subject</th>
+                  <th className="px-4 py-3 font-semibold tracking-wide">Filed</th>
+                  <th className="px-4 py-3 font-semibold tracking-wide">Priority</th>
+                  <th className="px-4 py-3 font-semibold tracking-wide">Assigned</th>
+                  <th className="px-4 py-3 font-semibold tracking-wide">Status</th>
+                  <th className="px-4 py-3 font-semibold tracking-wide">Action</th>
                 </tr>
               </thead>
               <tbody>
-                {pageData.map(g => (
-                  <tr key={g.grievanceId} className="border-t border-border/50 hover:bg-muted/30 transition-colors">
-                    <td className="px-4 py-2.5 font-mono text-xs">{g.grievanceId}</td>
-                    <td className="px-4 py-2.5">
-                      <div className="font-medium">{g.farmerName ?? "—"}</div>
+                {pageData.map((g, idx) => (
+                  <tr key={g.grievanceId} className={`border-t border-border/40 hover:bg-green-50/40 transition-colors ${idx % 2 === 0 ? "" : "bg-gray-50/50"}`}>
+                    <td className="px-4 py-3 font-mono text-xs text-gray-500">{g.grievanceId}</td>
+                    <td className="px-4 py-3">
+                      <div className="font-semibold text-gray-800">{g.farmerName ?? "—"}</div>
                       <div className="text-xs text-muted-foreground">{g.mobile}</div>
                     </td>
-                    <td className="px-4 py-2.5 text-xs">{g.category}</td>
-                    <td className="px-4 py-2.5 max-w-[200px]">
-                      <span className="block truncate text-xs" title={g.subject}>{g.subject}</span>
+                    <td className="px-4 py-3 text-xs text-gray-600">{g.category}</td>
+                    <td className="px-4 py-3 max-w-[200px]">
+                      <span className="block truncate text-xs text-gray-700" title={g.subject}>{g.subject}</span>
                     </td>
-                    <td className="px-4 py-2.5 text-xs whitespace-nowrap">{fmt(g.createdAt)}</td>
-                    <td className="px-4 py-2.5"><PriorityBadge p={g.priority} /></td>
-                    <td className="px-4 py-2.5 text-xs">{g.assignedTo ?? <span className="text-muted-foreground">—</span>}</td>
-                    <td className="px-4 py-2.5"><StatusBadge s={g.status} /></td>
-                    <td className="px-4 py-2.5">
-                      <button onClick={() => openDetail(g)} className="text-xs px-3 py-1.5 rounded bg-primary text-primary-foreground hover:opacity-90">View</button>
+                    <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{fmt(g.createdAt)}</td>
+                    <td className="px-4 py-3"><PriorityBadge p={g.priority} /></td>
+                    <td className="px-4 py-3 text-xs text-gray-600">{g.assignedTo ?? <span className="text-muted-foreground">—</span>}</td>
+                    <td className="px-4 py-3"><StatusBadge s={g.status} /></td>
+                    <td className="px-4 py-3">
+                      <button onClick={() => openDetail(g)}
+                        className="text-xs px-3 py-1.5 rounded-full font-semibold text-white hover:opacity-90 transition-opacity"
+                        style={{ background: "#14532D" }}>
+                        View
+                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="flex items-center justify-between px-4 py-3 border-t border-border">
+          <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-gray-50/50">
             <span className="text-xs text-muted-foreground">{filtered.length} grievance{filtered.length !== 1 ? "s" : ""}  ·  Page {page + 1} of {totalPages}</span>
             <div className="flex gap-1">
-              <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="p-1.5 rounded hover:bg-muted disabled:opacity-30"><ChevronLeft className="h-4 w-4" /></button>
-              <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="p-1.5 rounded hover:bg-muted disabled:opacity-30"><ChevronRight className="h-4 w-4" /></button>
+              <button disabled={page === 0} onClick={() => setPage(p => p - 1)} className="p-1.5 rounded-full hover:bg-muted disabled:opacity-30 transition-colors"><ChevronLeft className="h-4 w-4" /></button>
+              <button disabled={page >= totalPages - 1} onClick={() => setPage(p => p + 1)} className="p-1.5 rounded-full hover:bg-muted disabled:opacity-30 transition-colors"><ChevronRight className="h-4 w-4" /></button>
             </div>
           </div>
         </div>
