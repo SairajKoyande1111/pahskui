@@ -577,6 +577,36 @@ const ZOOM_MIN = 0.5;
 const ZOOM_MAX = 5;
 const ZOOM_STEP = 0.12;
 
+/** Returns true when the data-URL is a PDF */
+function isPdf(src: string) {
+  return src.startsWith("data:application/pdf") || src.toLowerCase().endsWith(".pdf");
+}
+
+/** Renders an image or a PDF embed depending on mime type */
+function DocMedia({
+  src,
+  alt,
+  className,
+  style,
+}: {
+  src: string;
+  alt?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}) {
+  if (isPdf(src)) {
+    return (
+      <embed
+        src={src}
+        type="application/pdf"
+        className={className}
+        style={{ background: "#fff", ...style }}
+      />
+    );
+  }
+  return <img src={src} alt={alt ?? "Document"} className={className} style={style} />;
+}
+
 /** Full-screen document lightbox — scroll to zoom, drag to pan, Esc to close */
 export function DocLightbox({ src, label, onClose }: { src: string; label?: string; onClose: () => void }) {
   // Keyboard: Esc closes
@@ -597,13 +627,23 @@ export function DocLightbox({ src, label, onClose }: { src: string; label?: stri
       style={{ zIndex: 10001 }}
       onClick={onClose}
     >
-      <img
-        src={src}
-        alt={label ?? "Document"}
-        draggable={false}
-        onClick={e => e.stopPropagation()}
-        className="rounded-xl shadow-2xl select-none max-h-[90vh] max-w-[90vw] object-contain"
-      />
+      {isPdf(src) ? (
+        <embed
+          src={src}
+          type="application/pdf"
+          onClick={(e) => e.stopPropagation()}
+          className="rounded-xl shadow-2xl"
+          style={{ width: "90vw", height: "90vh" }}
+        />
+      ) : (
+        <img
+          src={src}
+          alt={label ?? "Document"}
+          draggable={false}
+          onClick={e => e.stopPropagation()}
+          className="rounded-xl shadow-2xl select-none max-h-[90vh] max-w-[90vw] object-contain"
+        />
+      )}
     </div>,
     document.body,
   );
@@ -1433,10 +1473,11 @@ function DocUploadCard({
                   onClick={() => setLightboxSrc(state.rawFileDataUrl!)}
                   className="w-full focus:outline-none"
                 >
-                  <img
-                    src={state.rawFileDataUrl}
+                  <DocMedia
+                    src={state.rawFileDataUrl!}
                     alt={`${card.label} original`}
                     className="w-full max-h-52 object-contain rounded-lg border border-border bg-muted/20 shadow-sm hover:opacity-90 transition-opacity cursor-zoom-in"
+                    style={{ minHeight: isPdf(state.rawFileDataUrl!) ? "200px" : undefined }}
                   />
                 </button>
                 <button
@@ -2042,10 +2083,11 @@ function DocReviewPanel({
                   className="w-full block focus:outline-none group relative"
                   title="Click to view fullscreen"
                 >
-                  <img
-                    src={state.rawFileDataUrl}
+                  <DocMedia
+                    src={state.rawFileDataUrl!}
                     alt="Uploaded document"
                     className="w-full object-contain max-h-[520px] bg-white"
+                    style={{ minHeight: isPdf(state.rawFileDataUrl!) ? "480px" : undefined }}
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 text-white text-xs font-semibold rounded-full px-3 py-1.5 flex items-center gap-1.5">
@@ -2533,11 +2575,20 @@ export function FarmerProfileCard({
                     style={{ width: 88, height: 110 }}
                     title={`View ${doc.label}`}
                   >
-                    <img
-                      src={doc.src}
-                      alt={doc.label}
-                      className="w-full h-full object-cover bg-white"
-                    />
+                    {isPdf(doc.src) ? (
+                      <div className="w-full h-full flex flex-col items-center justify-center bg-red-50 gap-1 px-1">
+                        <svg viewBox="0 0 24 24" className="h-8 w-8 text-red-500" fill="currentColor">
+                          <path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7H20.5v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z"/>
+                        </svg>
+                        <span className="text-[8px] text-red-600 font-semibold text-center leading-tight">PDF</span>
+                      </div>
+                    ) : (
+                      <img
+                        src={doc.src}
+                        alt={doc.label}
+                        className="w-full h-full object-cover bg-white"
+                      />
+                    )}
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex flex-col items-center justify-center gap-1">
                       <ZoomIn className="h-5 w-5 text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow" />
                       <span className="text-[10px] font-semibold text-white opacity-0 group-hover:opacity-100 transition-opacity drop-shadow text-center leading-tight px-1">{doc.label}</span>

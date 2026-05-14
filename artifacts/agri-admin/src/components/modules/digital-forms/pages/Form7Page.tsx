@@ -3,7 +3,6 @@ import { useLanguage } from "../hooks/useLanguage";
 import { Language } from "../lib/translations";
 import { ArrowLeft, Printer, FileText, Save, Check } from "lucide-react";
 import { saveDraft, getDraft, Form7Data } from "../lib/drafts";
-import { downloadAsPdf } from "../lib/pdfExport";
 
 interface Props {
   onBack: () => void;
@@ -71,10 +70,8 @@ export default function Form7Page({ onBack, draftId }: Props) {
     setTimeout(() => setSaved(false), 2500);
   }
 
-  async function handleDownloadPdf() {
-    if (!formCardRef.current) return;
-    const filename = (draftName || data.village || 'form7') + '.pdf';
-    await downloadAsPdf(formCardRef.current, filename);
+  function handleSaveAsPdf() {
+    window.print();
   }
 
   return (
@@ -100,8 +97,8 @@ export default function Form7Page({ onBack, draftId }: Props) {
             <button onClick={printWithData} className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-gray-800 rounded-md hover:bg-gray-700 transition-colors">
               <Printer className="w-4 h-4" /> Print with Data
             </button>
-            <button onClick={handleDownloadPdf} className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-green-700 rounded-md hover:bg-green-800 transition-colors">
-              ⬇ Download PDF
+            <button onClick={handleSaveAsPdf} className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-green-700 rounded-md hover:bg-green-800 transition-colors">
+              <Printer className="w-4 h-4" /> Save as PDF
             </button>
           </div>
           <div className="border-l border-gray-200 pl-3">
