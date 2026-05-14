@@ -125,7 +125,7 @@ export default function LoginPage() {
           </datalist>
 
           {/* TOP: Krushi logo — clip internal whitespace, full content visible */}
-          <div style={{ flexShrink: 0, overflow: "hidden", height: 230 }}>
+          <div style={{ flexShrink: 0, overflow: "hidden", height: 160 }}>
             <img
               src="/logo-krushi-suvidha-new.png"
               alt="Krushi Suvidha"
@@ -141,7 +141,7 @@ export default function LoginPage() {
           </div>
 
           {/* MIDDLE: Login form */}
-          <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", padding: "4px 32px 24px" }}>
+          <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", padding: "0px 32px 24px" }}>
             <div style={{ marginBottom: 10 }}>
               <h2 style={{ fontFamily: "Poppins, sans-serif", fontSize: 26, fontWeight: 500, color: "#0f172a", lineHeight: 1.2, marginBottom: 3 }}>
                 Welcome back
