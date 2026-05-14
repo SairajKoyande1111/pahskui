@@ -141,7 +141,7 @@ export default function LoginPage() {
           </div>
 
           {/* MIDDLE: Login form */}
-          <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", padding: "72px 32px 24px" }}>
+          <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", padding: "32px 32px 24px" }}>
             <div style={{ marginBottom: 10 }}>
               <h2 style={{ fontFamily: "Poppins, sans-serif", fontSize: 26, fontWeight: 500, color: "#0f172a", lineHeight: 1.2, marginBottom: 3 }}>
                 Welcome back
@@ -233,14 +233,6 @@ export default function LoginPage() {
             </form>
           </div>
 
-          {/* BOTTOM: Airavata logo — 160px fixed */}
-          <div style={{ height: 160, minHeight: 160, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", padding: "8px 24px 12px" }}>
-            <img
-              src="/ATSVGNOBG.svg"
-              alt="Airavata Technologies"
-              style={{ width: "100%", height: "100%", objectFit: "contain", display: "block" }}
-            />
-          </div>
         </div>
 
         {/* ── Left panel: Steps on green bg ── */}
