@@ -1,6 +1,9 @@
 import { useState, useRef } from "react";
-import { Eye, EyeOff, LogIn, Lock, Mail, AlertCircle, Loader2 } from "lucide-react";
+import { Eye, EyeOff, AlertCircle, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import emailIcon from "@assets/email_(1)_1778785262550.png";
+import passwordIcon from "@assets/locked-computer_1778785279308.png";
+import signinIcon from "@assets/sign-in_1778785324753.png";
 
 const DEMO_ACCOUNTS = [
   { label: "Admin",            email: "admin@agri.mh.gov.in",   password: "Admin@123",   role: "Full Access" },
@@ -122,7 +125,7 @@ export default function LoginPage() {
           </datalist>
 
           {/* TOP: Krushi logo — clip internal whitespace, full content visible */}
-          <div style={{ flexShrink: 0, overflow: "hidden", height: 270 }}>
+          <div style={{ flexShrink: 0, overflow: "hidden", height: 230 }}>
             <img
               src="/logo-krushi-suvidha-new.png"
               alt="Krushi Suvidha"
@@ -149,7 +152,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="flex items-start gap-3 px-4 py-2 rounded-xl bg-red-50 border border-red-200" style={{ marginBottom: 8 }}>
+              <div className="flex items-start gap-3 px-4 py-2 rounded-full bg-red-50 border border-red-200" style={{ marginBottom: 8 }}>
                 <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5"/>
                 <p className="text-sm text-red-700">{error}</p>
               </div>
@@ -161,7 +164,7 @@ export default function LoginPage() {
                   Email Address
                 </label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400"/>
+                  <img src={emailIcon} alt="email" className="absolute left-3 top-1/2 -translate-y-1/2" style={{ width: 15, height: 15, objectFit: "contain", opacity: 0.45 }} />
                   <input
                     type="email" list="demo-emails" value={email}
                     onChange={e => {
@@ -170,8 +173,8 @@ export default function LoginPage() {
                       if (match) { setPassword(match.password); setError(""); }
                     }}
                     autoComplete="email" placeholder="you@agri.mh.gov.in"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl focus:outline-none transition-all"
-                    style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 300, padding: "8px 16px 8px 36px" }}
+                    className="w-full bg-white border border-slate-200 rounded-full focus:outline-none transition-all"
+                    style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 300, padding: "9px 16px 9px 36px" }}
                     onFocus={e => e.target.style.boxShadow = "0 0 0 3px rgba(5,150,105,0.15)"}
                     onBlur={e => e.target.style.boxShadow = ""}
                   />
@@ -183,13 +186,13 @@ export default function LoginPage() {
                   Password
                 </label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400"/>
+                  <img src={passwordIcon} alt="password" className="absolute left-3 top-1/2 -translate-y-1/2" style={{ width: 15, height: 15, objectFit: "contain", opacity: 0.45 }} />
                   <input
                     ref={pwRef} type={showPw ? "text" : "password"} value={password}
                     onChange={e => setPassword(e.target.value)} autoComplete="current-password"
                     placeholder="Enter your password"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl focus:outline-none transition-all"
-                    style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 300, padding: "8px 44px 8px 36px" }}
+                    className="w-full bg-white border border-slate-200 rounded-full focus:outline-none transition-all"
+                    style={{ fontFamily: "Poppins, sans-serif", fontSize: 13, fontWeight: 300, padding: "9px 44px 9px 36px" }}
                     onFocus={e => e.target.style.boxShadow = "0 0 0 3px rgba(5,150,105,0.15)"}
                     onBlur={e => e.target.style.boxShadow = ""}
                   />
@@ -218,14 +221,14 @@ export default function LoginPage() {
 
               <button
                 type="submit" disabled={loading}
-                className="w-full flex items-center justify-center gap-2.5 rounded-xl text-white transition-all disabled:opacity-70"
+                className="w-full flex items-center justify-center gap-2.5 rounded-full text-white transition-all disabled:opacity-70"
                 style={{ backgroundColor: "#059669", fontFamily: "Poppins, sans-serif", fontSize: 14, fontWeight: 500, padding: "11px 0" }}
                 onMouseEnter={e => !loading && ((e.currentTarget).style.backgroundColor = "#047857")}
                 onMouseLeave={e => ((e.currentTarget).style.backgroundColor = "#059669")}
               >
                 {loading
                   ? <><Loader2 className="h-4 w-4 animate-spin"/>Signing in…</>
-                  : <><LogIn className="h-4 w-4"/>Sign In to Krushi Suvidha</>}
+                  : <><img src={signinIcon} alt="sign in" style={{ width: 16, height: 16, objectFit: "contain", filter: "brightness(0) invert(1)" }} />Sign In to Krushi Suvidha</>}
               </button>
             </form>
           </div>
