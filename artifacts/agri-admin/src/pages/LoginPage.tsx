@@ -112,7 +112,7 @@ export default function LoginPage() {
       <div className="flex-1 flex flex-row-reverse overflow-hidden min-h-0">
 
         {/* ── Right panel ── */}
-        <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col h-full bg-white lg:border-l lg:border-slate-200" style={{ overflow: "hidden" }}>
+        <div className="w-full lg:w-[420px] xl:w-[460px] flex-shrink-0 flex flex-col h-full bg-white lg:border-l lg:border-slate-200" style={{ overflowY: "auto" }}>
 
           {/* datalist (hidden, no layout impact) */}
           <datalist id="demo-emails">
@@ -121,23 +121,24 @@ export default function LoginPage() {
             ))}
           </datalist>
 
-          {/* TOP: Krushi logo — full logo visible, constrained height */}
-          <div style={{ flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", paddingTop: 0 }}>
+          {/* TOP: Krushi logo — clip internal whitespace, full content visible */}
+          <div style={{ flexShrink: 0, overflow: "hidden", height: 270 }}>
             <img
               src="/logo-krushi-suvidha-new.png"
               alt="Krushi Suvidha"
               style={{
-                height: 170,
-                width: "auto",
-                maxWidth: "95%",
+                width: "88%",
+                height: "auto",
                 display: "block",
+                margin: "0 auto",
+                marginTop: -52,
                 mixBlendMode: "multiply",
               }}
             />
           </div>
 
-          {/* MIDDLE: Login form — flex-1, vertically centred */}
-          <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center", padding: "0 32px" }}>
+          {/* MIDDLE: Login form */}
+          <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", padding: "4px 32px 24px" }}>
             <div style={{ marginBottom: 10 }}>
               <h2 style={{ fontFamily: "Poppins, sans-serif", fontSize: 26, fontWeight: 500, color: "#0f172a", lineHeight: 1.2, marginBottom: 3 }}>
                 Welcome back
