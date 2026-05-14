@@ -125,7 +125,7 @@ export default function LoginPage() {
           </datalist>
 
           {/* TOP: Krushi logo — clip internal whitespace, full content visible */}
-          <div style={{ flexShrink: 0, overflow: "hidden", height: 160 }}>
+          <div style={{ flexShrink: 0, overflow: "hidden", height: 120 }}>
             <img
               src="/logo-krushi-suvidha-new.png"
               alt="Krushi Suvidha"
@@ -134,7 +134,7 @@ export default function LoginPage() {
                 height: "auto",
                 display: "block",
                 margin: "0 auto",
-                marginTop: -52,
+                marginTop: -95,
                 mixBlendMode: "multiply",
               }}
             />
