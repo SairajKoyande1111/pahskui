@@ -278,15 +278,15 @@ router.post("/farmers/:farmerId/documents", async (req, res, next) => {
     const now = new Date().toISOString();
 
     for (const d of docs.filter(
-      (d: { docType?: string; base64?: string; mimeType?: string }) =>
-        typeof d.docType === "string" && typeof d.base64 === "string" && d.base64.length > 0
+      (d: { docType?: string; cloudinaryUrl?: string; mimeType?: string }) =>
+        typeof d.docType === "string"
     )) {
-      const docObj = {
+      const docObj: Record<string, unknown> = {
         docType: d.docType,
-        base64: d.base64,
         mimeType: d.mimeType || "application/octet-stream",
         mobile,
         uploadedAt: now,
+        ...(d.cloudinaryUrl ? { cloudinaryUrl: d.cloudinaryUrl } : {}),
       };
       const updateResult = await farmersCol.updateOne(
         { farmerId, "documents.docType": d.docType },

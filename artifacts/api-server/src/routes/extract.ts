@@ -18,6 +18,7 @@ import {
   extractTextBlocksFromMarkerJson,
   type Form7Table,
 } from "../lib/profiles";
+import { uploadToCloudinary } from "../lib/cloudinary";
 
 const router: IRouter = Router();
 
@@ -40,9 +41,11 @@ interface JobMeta {
   profilePhone: string | null;
   /** Whether we've already persisted this completed extraction (idempotency). */
   saved: boolean;
-  /** Raw uploaded file stored as base64 so it can be shown alongside OCR output. */
+  /** Raw uploaded file kept in memory (for immediate API response only — NOT persisted to MongoDB). */
   rawFileBase64: string;
   rawFileMimeType: string;
+  /** Original buffer for Cloudinary upload (cleared after upload). */
+  rawFileBuffer: Buffer | null;
 }
 
 const jobs = new Map<string, JobMeta>();
@@ -306,7 +309,6 @@ router.post(
 
     gcJobs();
     const jobId = randomUUID().replace(/-/g, "");
-    const rawFileBase64 = file.buffer.toString("base64");
     const rawFileMimeType = file.mimetype || "application/octet-stream";
     jobs.set(jobId, {
       documentTypeId: docDef.id,
@@ -315,8 +317,9 @@ router.post(
       createdAt: Date.now(),
       profilePhone,
       saved: false,
-      rawFileBase64,
+      rawFileBase64: file.buffer.toString("base64"),
       rawFileMimeType,
+      rawFileBuffer: file.buffer,
     });
 
     res.json({
@@ -403,15 +406,35 @@ async function persistToProfile(
       resolvedFarmerId = String(existing["farmerId"] ?? "");
     }
 
-    // Step 2: Always persist the raw image embedded in the farmer document.
-    if (meta.rawFileBase64) {
-      const docObj = {
+    // Step 2: Upload to Cloudinary and store URL (not base64) in MongoDB.
+    {
+      let cloudinaryUrl: string | null = null;
+      const buf = meta.rawFileBuffer;
+      if (buf) {
+        try {
+          const sanitizedMobile = mobile.replace(/\D/g, "");
+          const { url } = await uploadToCloudinary(
+            buf,
+            meta.rawFileMimeType,
+            `farmers/${sanitizedMobile}`,
+            `${docDef.id}_${Date.now()}`,
+          );
+          cloudinaryUrl = url;
+          meta.rawFileBuffer = null; // free memory after upload
+          logger.info({ docType: docDef.id, mobile }, "Document uploaded to Cloudinary");
+        } catch (err) {
+          logger.error({ err, docType: docDef.id }, "Cloudinary upload failed — skipping image storage");
+        }
+      }
+
+      const docObj: Record<string, unknown> = {
         docType: docDef.id,
-        base64: meta.rawFileBase64,
         mimeType: meta.rawFileMimeType,
         mobile,
         uploadedAt: now,
+        ...(cloudinaryUrl ? { cloudinaryUrl } : {}),
       };
+
       const updateResult = await farmersCol.updateOne(
         { mobile, "documents.docType": docDef.id },
         { $set: { "documents.$": docObj } },

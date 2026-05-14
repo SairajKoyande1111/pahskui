@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import {
   BarChart3, Users, ClipboardList, IndianRupee, Shield, Megaphone,
-  TrendingUp, Settings, ChevronLeft, ChevronRight, Smartphone,
+  TrendingUp, Settings, ChevronLeft, ChevronRight,
   UserPlus, UserCheck, UsersRound, BookOpen, ShieldCheck, Coins,
   FolderOpen, Database as DatabaseIcon, BellRing, LogOut,
 } from "lucide-react";
@@ -54,7 +54,6 @@ const NAV_ENTRIES: NavEntry[] = [
   { key: "notifications",  labelKey: "nav_notifications",  icon: BellRing },
   { key: "reports",        labelKey: "nav_reports",        icon: TrendingUp },
   { key: "settings",   labelKey: "nav_settings",   icon: Settings },
-  { key: "farmerapp",  labelKey: "nav_farmerapp",  icon: Smartphone },
 ];
 
 const USER_MGMT: NavItem = { key: "usermanagement", labelKey: "nav_usermanagement", icon: UsersRound };
