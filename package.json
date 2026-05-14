@@ -8,7 +8,7 @@
     "scripts"
   ],
   "scripts": {
-    "build": "npm run build --workspace=@workspace/api-server",
+    "build": "npm run build --workspace=@workspace/agri-admin && npm run build --workspace=@workspace/api-server",
     "build:all": "npm run build --workspace=@workspace/agri-admin && npm run build --workspace=@workspace/api-server",
     "dev": "pnpm --filter @workspace/agri-admin run dev",
     "start": "node --enable-source-maps artifacts/api-server/dist/index.mjs",
