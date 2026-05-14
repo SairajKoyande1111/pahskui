@@ -125,7 +125,7 @@ export default function LoginPage() {
           </datalist>
 
           {/* TOP: Krushi logo — clip internal whitespace, full content visible */}
-          <div style={{ flexShrink: 0, overflow: "hidden", height: 120 }}>
+          <div style={{ flexShrink: 0, overflow: "hidden", height: 175 }}>
             <img
               src="/logo-krushi-suvidha-new.png"
               alt="Krushi Suvidha"
