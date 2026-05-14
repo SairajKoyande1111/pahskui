@@ -141,7 +141,7 @@ export default function LoginPage() {
           </div>
 
           {/* MIDDLE: Login form */}
-          <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", padding: "20px 32px 24px" }}>
+          <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", padding: "44px 32px 24px" }}>
             <div style={{ marginBottom: 10 }}>
               <h2 style={{ fontFamily: "Poppins, sans-serif", fontSize: 26, fontWeight: 500, color: "#0f172a", lineHeight: 1.2, marginBottom: 3 }}>
                 Welcome back
