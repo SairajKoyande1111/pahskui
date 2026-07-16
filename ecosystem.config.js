@@ -11,7 +11,7 @@ module.exports = {
       watch: false,
       max_memory_restart: "512M",
       env: {
-        PORT: 3014,
+        PORT: 3024,
         NODE_ENV: "production",
         MONGODB_URI: "mongodb+srv://sairajkoyande_db_user:5QlrqFxJrJmM9rR4@cluster0.akmevxg.mongodb.net/?appName=Cluster0",
         MONGODB_DB: "apnaapp",
